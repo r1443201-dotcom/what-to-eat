@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今天吃什麼？隨機選擇器</title>
+<style>
+  /* Vibe Coding 產生的 CSS 樣式 */
+  body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: #fdf5e6; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    margin: 0; 
+  }
+  .container { 
+    background: white; 
+    padding: 30px; 
+    border-radius: 15px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    width: 90%; 
+    max-width: 400px; 
+    text-align: center; 
+  }
+  h1 { color: #ff7f50; margin-bottom: 20px; font-size: 28px;}
+  .input-group { display: flex; margin-bottom: 20px; }
+  input[type="text"] { 
+    flex: 1; padding: 12px; border: 2px solid #ffddab; 
+    border-radius: 8px 0 0 8px; outline: none; font-size: 16px; 
+  }
+  button.add-btn { 
+    padding: 12px 20px; background-color: #ff7f50; color: white; 
+    border: none; border-radius: 0 8px 8px 0; cursor: pointer; font-size: 16px; transition: 0.2s; 
+  }
+  button.add-btn:hover { background-color: #ff6347; }
+  ul.food-list { 
+    list-style: none; padding: 0; margin-bottom: 20px; 
+    max-height: 180px; overflow-y: auto; text-align: left; 
+  }
+  ul.food-list li { 
+    background: #fff8eb; margin-bottom: 8px; padding: 10px 15px; 
+    border-radius: 8px; display: flex; justify-content: space-between; align-items: center; 
+    border: 1px solid #ffebcd;
+  }
+  .delete-btn { 
+    background: #ff5252; color: white; border: none; 
+    border-radius: 4px; cursor: pointer; padding: 5px 10px; font-size: 12px; 
+  }
+  .delete-btn:hover { background: #e53935; }
+  .pick-btn { 
+    width: 100%; padding: 15px; background-color: #4caf50; color: white; 
+    border: none; border-radius: 8px; font-size: 20px; font-weight: bold; 
+    cursor: pointer; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+  }
+  .pick-btn:hover { background-color: #43a047; transform: translateY(-2px); }
+  .pick-btn:disabled { background-color: #9e9e9e; cursor: not-allowed; transform: none; }
+  .result-display { 
+    margin-top: 25px; font-size: 20px; font-weight: bold; color: #9e9e9e; min-height: 60px; 
+  }
+  .final-result { color: #e91e63; font-size: 32px; animation: pop 0.5s ease-out; }
+  @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>🍱 今天吃什麼？</h1>
+    <div class="input-group">
+      <input type="text" id="foodInput" placeholder="輸入想吃的食物或餐廳...">
+      <button class="add-btn" onclick="addFood()">新增</button>
+    </div>
+    <ul class="food-list" id="foodList">
+      <!-- JavaScript 會動態生成清單 -->
+    </ul>
+    <button class="pick-btn" id="pickBtn" onclick="pickFood()">🎲 幫我決定！</button>
+    <div class="result-display" id="resultDisplay">猶豫不決嗎？點擊按鈕抽取！</div>
+  </div>
+
+  <script>
+    // 預設食物清單
+    let foods = ['麥當勞', '巷口麵店', '日式拉麵', '健康餐盒', '水餃'];
+    const listEl = document.getElementById('foodList');
+    const inputEl = document.getElementById('foodInput');
+    const resultEl = document.getElementById('resultDisplay');
+    const pickBtn = document.getElementById('pickBtn');
+
+    // 渲染清單
+    function renderList() {
+      listEl.innerHTML = '';
+      foods.forEach((food, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>${food}</span> <button class="delete-btn" onclick="deleteFood(${index})">刪除</button>`;
+        listEl.appendChild(li);
+      });
+    }
+
+    // 新增食物
+    function addFood() {
+      const val = inputEl.value.trim();
+      if(val) {
+        foods.push(val);
+        inputEl.value = '';
+        renderList();
+      }
+    }
+    inputEl.addEventListener('keypress', function(e) { if (e.key === 'Enter') addFood(); });
+
+    // 刪除食物
+    function deleteFood(index) {
+      foods.splice(index, 1);
+      renderList();
+    }
+
+    // 隨機抽取特效 (Vibe Coding 迭代重點)
+    function pickFood() {
+      if (foods.length === 0) {
+        alert('清單是空的！請先新增食物喔。');
+        return;
+      }
+      pickBtn.disabled = true;
+      let times = 0;
+      const maxTimes = 20; // 閃爍次數
+      
+      const interval = setInterval(() => {
+        const randomFood = foods[Math.floor(Math.random() * foods.length)];
+        resultEl.innerHTML = `思考中... <br><span style="color:#555;">${randomFood}</span>`;
+        times++;
+        
+        if (times >= maxTimes) {
+          clearInterval(interval);
+          const finalFood = foods[Math.floor(Math.random() * foods.length)];
+          resultEl.innerHTML = `🎉 就決定吃：<br><div class="final-result">${finalFood}</div> 🎉`;
+          pickBtn.disabled = false;
+        }
+      }, 80); // 閃爍速度
+    }
+
+    // 初始載入
+    renderList();
+  </script>
+</body>
+</html>
